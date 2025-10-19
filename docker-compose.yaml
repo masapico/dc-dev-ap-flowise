@@ -1,0 +1,48 @@
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx_html:/usr/share/nginx/html:ro
+    depends_on:
+      - flowise
+      - chromadb
+      - pocketbase
+
+  flowise:
+    image: flowiseai/flowise:3.0.8
+    container_name: flowise
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+    expose:
+      - "3000"
+    volumes:
+      - "C:/Users/masap/dev/flowise-dev/flowise-data:/root/.flowise"
+
+  chromadb:
+    image: chromadb/chroma:1.1.1
+    container_name: chromadb
+    restart: unless-stopped
+    environment:
+      - CHROMA_SERVER_CORS_ALLOW_ORIGINS="*"
+    expose:
+      - "8000"
+    volumes:
+      - "C:/Users/masap/dev/flowise-dev/chromadb-data:/chroma"
+    command: "run --host 0.0.0.0 --port 8000"
+
+  pocketbase:
+    image: elestio/pocketbase:v0.30.2
+    container_name: pocketbase
+    restart: unless-stopped
+    user: 0:0
+    # expose:
+    #   - "8090"
+    ports:
+      - "8090:8090"
+    volumes:
+      - C:/Users/masap/dev/flowise-dev/pb_data:/pb_data
